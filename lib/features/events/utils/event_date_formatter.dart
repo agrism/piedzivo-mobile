@@ -60,6 +60,25 @@ class EventDateFormatter {
     }
   }
 
+  static String formatFullDate(String yyyyMmDd) {
+    if (yyyyMmDd.isEmpty) return '';
+    try {
+      final parts = yyyyMmDd.split('-');
+      if (parts.length != 3) return yyyyMmDd;
+
+      final year = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final day = int.parse(parts[2]);
+      final targetDate = DateTime(year, month, day);
+
+      final weekdayName = _latvianWeekdays[targetDate.weekday - 1];
+      final monthName = _latvianMonths[targetDate.month - 1];
+      return '$weekdayName, ${targetDate.year}. gada ${targetDate.day}. $monthName';
+    } catch (_) {
+      return yyyyMmDd;
+    }
+  }
+
   static String formatTime(String? startsAt) {
     if (startsAt == null || startsAt.isEmpty) return '';
     final parts = startsAt.split(':');

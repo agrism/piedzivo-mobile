@@ -81,27 +81,34 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider.value(value: _geoCubit),
-        BlocProvider.value(value: _eventsBloc),
+        RepositoryProvider.value(value: _configRepo),
+        RepositoryProvider.value(value: _geoRepo),
+        RepositoryProvider.value(value: _eventsRepo),
       ],
-      child: _isInitialized
-          ? MaterialApp.router(
-              title: 'Piedzīvo.lv',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.lightTheme,
-              routerConfig: _router,
-            )
-          : MaterialApp(
-              title: 'Piedzīvo.lv',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.lightTheme,
-              home: SplashScreen(
-                repository: _configRepo,
-                onConfigLoaded: _onConfigLoaded,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: _geoCubit),
+          BlocProvider.value(value: _eventsBloc),
+        ],
+        child: _isInitialized
+            ? MaterialApp.router(
+                title: 'Piedzīvo.lv',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                routerConfig: _router,
+              )
+            : MaterialApp(
+                title: 'Piedzīvo.lv',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                home: SplashScreen(
+                  repository: _configRepo,
+                  onConfigLoaded: _onConfigLoaded,
+                ),
               ),
-            ),
+      ),
     );
   }
 }

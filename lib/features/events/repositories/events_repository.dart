@@ -1,10 +1,25 @@
 import '../../../core/network/api_client.dart';
+import '../models/event_detail.dart';
 import '../models/event_list_item.dart';
 
 class EventsRepository {
   final ApiClient apiClient;
 
   EventsRepository({required this.apiClient});
+
+  Future<EventDetail> getEventDetail(String eventId) async {
+    final response = await apiClient.dio.get('/events/$eventId');
+    final dynamic rawData = response.data;
+    final Map<String, dynamic> dataMap = (rawData is Map && rawData['data'] is Map)
+        ? (rawData['data'] is Map<String, dynamic>
+            ? rawData['data'] as Map<String, dynamic>
+            : Map<String, dynamic>.from(rawData['data'] as Map))
+        : (rawData is Map<String, dynamic>
+            ? rawData
+            : Map<String, dynamic>.from(rawData as Map));
+
+    return EventDetail.fromJson(dataMap);
+  }
 
   Future<List<EventListItem>> getEvents({
     String? placeId,
