@@ -14,6 +14,7 @@ import 'features/geo/cubit/geo_cubit.dart';
 import 'features/geo/repositories/geo_repository.dart';
 import 'features/places/bloc/places_bloc.dart';
 import 'features/places/repositories/places_repository.dart';
+import 'features/search/bloc/search_bloc.dart';
 
 class PiedzivoApp extends StatefulWidget {
   final AppConfigRepository? appConfigRepository;
@@ -23,6 +24,7 @@ class PiedzivoApp extends StatefulWidget {
   final EventsBloc? eventsBloc;
   final PlacesRepository? placesRepository;
   final PlacesBloc? placesBloc;
+  final SearchBloc? searchBloc;
   final GoRouter? router;
   final bool startWithRouter;
 
@@ -35,6 +37,7 @@ class PiedzivoApp extends StatefulWidget {
     this.eventsBloc,
     this.placesRepository,
     this.placesBloc,
+    this.searchBloc,
     this.router,
     this.startWithRouter = false,
   });
@@ -52,6 +55,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   late final EventsBloc _eventsBloc;
   late final PlacesRepository _placesRepo;
   late final PlacesBloc _placesBloc;
+  late final SearchBloc _searchBloc;
   late final GoRouter _router;
 
   bool _isInitialized = false;
@@ -67,6 +71,11 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
     _eventsBloc = widget.eventsBloc ?? EventsBloc(repository: _eventsRepo);
     _placesRepo = widget.placesRepository ?? PlacesRepository(apiClient: _apiClient);
     _placesBloc = widget.placesBloc ?? PlacesBloc(repository: _placesRepo);
+    _searchBloc = widget.searchBloc ??
+        SearchBloc(
+          eventsRepository: _eventsRepo,
+          placesRepository: _placesRepo,
+        );
     _router = widget.router ?? appRouter;
     _isInitialized = widget.startWithRouter;
   }
@@ -81,6 +90,9 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
     }
     if (widget.placesBloc == null) {
       _placesBloc.close();
+    }
+    if (widget.searchBloc == null) {
+      _searchBloc.close();
     }
     super.dispose();
   }
@@ -106,6 +118,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
           BlocProvider.value(value: _geoCubit),
           BlocProvider.value(value: _eventsBloc),
           BlocProvider.value(value: _placesBloc),
+          BlocProvider.value(value: _searchBloc),
         ],
         child: _isInitialized
             ? MaterialApp.router(

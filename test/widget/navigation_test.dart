@@ -18,6 +18,7 @@ import 'package:piedzivo/features/places/bloc/places_bloc.dart';
 import 'package:piedzivo/features/places/bloc/places_state.dart';
 import 'package:piedzivo/features/places/repositories/places_repository.dart';
 import 'package:piedzivo/features/places/screens/places_list_screen.dart';
+import 'package:piedzivo/features/search/screens/search_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../unit/api_client_test.dart';
 
@@ -215,7 +216,7 @@ void main() {
       await tester.tap(find.byKey(const Key('global_top_bar_search_button')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Meklēšanas ekrāns tiks implementēts Uzdevumā 10'), findsOneWidget);
+      expect(find.byType(SearchScreen), findsOneWidget);
     });
 
     testWidgets('PiedzivoBottomNav displays red badges for 1..99 and 99+', (

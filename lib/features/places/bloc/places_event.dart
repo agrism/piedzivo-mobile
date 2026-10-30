@@ -9,12 +9,17 @@ abstract class PlacesEvent extends Equatable {
 
 class LoadPlaces extends PlacesEvent {
   final String? placeId;
+  final bool? isMunicipalityWide;
   final bool forceRefresh;
 
-  const LoadPlaces({this.placeId, this.forceRefresh = false});
+  const LoadPlaces({
+    this.placeId,
+    this.isMunicipalityWide,
+    this.forceRefresh = false,
+  });
 
   @override
-  List<Object?> get props => [placeId, forceRefresh];
+  List<Object?> get props => [placeId, isMunicipalityWide, forceRefresh];
 }
 
 class FilterPlaces extends PlacesEvent {

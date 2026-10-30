@@ -14,6 +14,7 @@ import 'package:piedzivo/features/events/widgets/event_card.dart';
 import 'package:piedzivo/features/geo/cubit/geo_cubit.dart';
 import 'package:piedzivo/features/geo/models/geo_place.dart';
 import 'package:piedzivo/features/geo/repositories/geo_repository.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../unit/api_client_test.dart';
 
@@ -27,7 +28,10 @@ void main() {
     late GeoRepository geoRepo;
     late GeoCubit geoCubit;
 
-    const mockEvent1 = EventListItem(
+    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final tomorrowStr = DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 1)));
+
+    late final mockEvent1 = EventListItem(
       id: 'evt-1',
       slug: 'koncerts-cesis',
       title: 'Akustiskais koncerts pilī',
@@ -39,13 +43,13 @@ void main() {
       primaryTaxonomyName: 'Koncerts',
       priceLabel: 'no 12 €',
       isFree: false,
-      startsOn: '2026-10-30',
+      startsOn: todayStr,
       startsAt: '19:00:00',
       placeTitle: 'Cēsu viduslaiku pils',
       placeCity: 'Cēsis',
     );
 
-    const mockEvent2 = EventListItem(
+    late final mockEvent2 = EventListItem(
       id: 'evt-2',
       slug: 'izstade-cesis',
       title: 'Keramikas meistarklase',
@@ -57,7 +61,7 @@ void main() {
       primaryTaxonomyName: 'Izstāde',
       priceLabel: 'Bezmaksas',
       isFree: true,
-      startsOn: '2026-10-31',
+      startsOn: tomorrowStr,
       startsAt: '14:00:00',
       placeTitle: 'Cēsu Izstāžu nams',
       placeCity: 'Cēsis',

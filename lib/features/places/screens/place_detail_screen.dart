@@ -903,11 +903,11 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 child: SizedBox(
                   width: 50,
                   height: 50,
-                  child: event.primaryImageUrl != null &&
-                          event.primaryImageUrl!.isNotEmpty &&
+                  child: event.imageUrl != null &&
+                          event.imageUrl!.isNotEmpty &&
                           !AppTheme.isTestMode
                       ? CachedNetworkImage(
-                          imageUrl: event.primaryImageUrl!,
+                          imageUrl: event.imageUrl!,
                           fit: BoxFit.cover,
                           placeholder: (_, __) => Container(color: AppColors.borderSubtle),
                           errorWidget: (_, __, ___) => Container(color: AppColors.borderSubtle),

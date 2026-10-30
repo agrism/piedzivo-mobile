@@ -158,13 +158,13 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                 right: 0,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceWhite.withOpacity(0.92),
+                    color: AppColors.surfaceWhite.withValues(alpha: 0.92),
                     border: const Border(
                       bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -317,7 +317,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: isSelected ? 8 : 4,
             offset: const Offset(0, 2),
           ),

@@ -24,5 +24,12 @@ class AppColors {
   static const Color warning = accentAmber;
   static const Color error = accentCoral;
   static const Color badgeRed = Color(0xFFEF4444);
+
+  // Saderības aliasi
+  static const Color surfaceWhite = cardWhite;
+  static const Color textDark = primaryNavy;
+  static const Color statusGreen = accentEmerald;
+  static const Color statusRed = accentCoral;
+  static const Color brandGold = accentAmber;
 }
 

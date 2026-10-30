@@ -21,6 +21,8 @@ class EventListItem extends Equatable {
   final String? placeTitle;
   final String? placeCity;
 
+  String? get primaryImageUrl => imageUrl;
+
   const EventListItem({
     required this.id,
     this.publicId,
