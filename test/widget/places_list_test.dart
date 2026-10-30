@@ -15,6 +15,7 @@ import 'package:piedzivo/features/places/bloc/places_bloc.dart';
 import 'package:piedzivo/features/places/bloc/places_state.dart';
 import 'package:piedzivo/features/places/models/place_list_item.dart';
 import 'package:piedzivo/features/places/repositories/places_repository.dart';
+import 'package:piedzivo/features/places/screens/fullscreen_map_screen.dart';
 import 'package:piedzivo/features/places/widgets/places_mini_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../unit/api_client_test.dart';
@@ -249,7 +250,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Pārbaudām, ka esam FullscreenMapScreen
-      expect(find.text('Pilnekrāna karte'), findsOneWidget);
+      expect(find.byType(FullscreenMapScreen), findsOneWidget);
+      expect(find.byKey(const Key('map_back_button')), findsOneWidget);
     });
 
     testWidgets('Tapping PlaceCard navigates to /places/:id', (
