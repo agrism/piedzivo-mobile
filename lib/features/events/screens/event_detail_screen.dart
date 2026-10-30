@@ -15,3 +15,4 @@ class EventDetailScreen extends StatelessWidget {
     );
   }
 }
+

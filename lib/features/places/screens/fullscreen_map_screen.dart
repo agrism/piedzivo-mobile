@@ -13,3 +13,4 @@ class FullscreenMapScreen extends StatelessWidget {
     );
   }
 }
+

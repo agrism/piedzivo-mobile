@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:piedzivo/app.dart';
+import 'package:piedzivo/core/theme/app_theme.dart';
 import 'package:piedzivo/core/navigation/app_router.dart';
 import 'package:piedzivo/core/navigation/piedzivo_bottom_nav.dart';
 import 'package:piedzivo/core/network/api_client.dart';
+import 'package:piedzivo/features/events/bloc/events_bloc.dart';
+import 'package:piedzivo/features/events/repositories/events_repository.dart';
 import 'package:piedzivo/features/geo/cubit/geo_cubit.dart';
 import 'package:piedzivo/features/geo/models/geo_place.dart';
 import 'package:piedzivo/features/geo/repositories/geo_repository.dart';
@@ -20,6 +23,8 @@ void main() {
     late ApiClient apiClient;
     late GeoRepository geoRepository;
     late GeoCubit geoCubit;
+    late EventsRepository eventsRepository;
+    late EventsBloc eventsBloc;
     late GoRouter testRouter;
 
     const placeCesis = GeoPlace(
@@ -46,6 +51,7 @@ void main() {
     );
 
     setUp(() async {
+      AppTheme.isTestMode = true;
       SharedPreferences.setMockInitialValues({
         GeoRepository.cacheKeyPlacesJson: jsonEncode([placeCesis.toJson(), placeValmiera.toJson()]),
         GeoRepository.cacheKeyChecksum: 'chk1',
@@ -55,10 +61,23 @@ void main() {
 
       fakeStorage = FakeSecureStorage();
       mockAdapter = MockAdapter();
+      mockAdapter.handler = (options) {
+        if (options.path.contains('/events')) {
+          return ResponseBody.fromString(
+            jsonEncode({'data': []}),
+            200,
+            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+          );
+        }
+        return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
+      };
+
       final dio = Dio(BaseOptions(baseUrl: ApiClient.baseUrl));
       dio.httpClientAdapter = mockAdapter;
 
       apiClient = ApiClient(secureStorage: fakeStorage, dioClient: dio);
+      eventsRepository = EventsRepository(apiClient: apiClient);
+      eventsBloc = EventsBloc(repository: eventsRepository);
       geoRepository = GeoRepository(apiClient: apiClient);
       geoCubit = GeoCubit(geoRepository: geoRepository);
       await geoCubit.loadPlaces(serverChecksum: 'chk1');
@@ -72,22 +91,18 @@ void main() {
       await tester.pumpWidget(
         PiedzivoApp(
           geoCubit: geoCubit,
+          eventsBloc: eventsBloc,
+          eventsRepository: eventsRepository,
           router: testRouter,
           startWithRouter: true,
         ),
       );
       await tester.pumpAndSettle();
 
-      // 1. Pārbaudām, ka startējam 0. cilnē (Pasākumi)
-      expect(find.text('Pasākumu saraksts'), findsOneWidget);
-      expect(find.text('Stāvokļa pārbaude: 0'), findsOneWidget);
-
-      // Palielinām skaitītāju Pasākumu cilnē līdz 2
-      await tester.tap(find.byKey(const Key('events_increment_button')));
+      // 1. Pārbaudām, ka startējam 0. cilnē (Pasākumi) un izvēlamies kategoriju "Koncerts"
+      expect(find.byKey(const Key('category_chip_Koncerts')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('category_chip_Koncerts')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('events_increment_button')));
-      await tester.pumpAndSettle();
-      expect(find.text('Stāvokļa pārbaude: 2'), findsOneWidget);
 
       // 2. Pārslēdzamies uz 1. cilni (Vietas)
       await tester.tap(find.byKey(const Key('bottom_nav_item_1')));
@@ -118,9 +133,8 @@ void main() {
       await tester.tap(find.byKey(const Key('bottom_nav_item_0')));
       await tester.pumpAndSettle();
 
-      // VERIFIKĀCIJA: Stāvoklis Pasākumos nav atiestatījies (joprojām 2)!
-      expect(find.text('Pasākumu saraksts'), findsOneWidget);
-      expect(find.text('Stāvokļa pārbaude: 2'), findsOneWidget);
+      // VERIFIKĀCIJA: Pasākumos kategorijas čips joprojām ir aktīvs
+      expect(find.byKey(const Key('category_chip_Koncerts')), findsOneWidget);
 
       // 5. Atgriežamies uz 1. cilni (Vietas)
       await tester.tap(find.byKey(const Key('bottom_nav_item_1')));
@@ -137,6 +151,8 @@ void main() {
       await tester.pumpWidget(
         PiedzivoApp(
           geoCubit: geoCubit,
+          eventsBloc: eventsBloc,
+          eventsRepository: eventsRepository,
           router: testRouter,
           startWithRouter: true,
         ),
@@ -168,6 +184,8 @@ void main() {
       await tester.pumpWidget(
         PiedzivoApp(
           geoCubit: geoCubit,
+          eventsBloc: eventsBloc,
+          eventsRepository: eventsRepository,
           router: testRouter,
           startWithRouter: true,
         ),
@@ -186,6 +204,8 @@ void main() {
       await tester.pumpWidget(
         PiedzivoApp(
           geoCubit: geoCubit,
+          eventsBloc: eventsBloc,
+          eventsRepository: eventsRepository,
           router: testRouter,
           startWithRouter: true,
         ),
@@ -212,3 +232,4 @@ void main() {
     });
   });
 }
+

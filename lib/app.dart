@@ -8,6 +8,8 @@ import 'core/theme/app_theme.dart';
 import 'features/app_config/models/app_config.dart';
 import 'features/app_config/repositories/app_config_repository.dart';
 import 'features/app_config/screens/splash_screen.dart';
+import 'features/events/bloc/events_bloc.dart';
+import 'features/events/repositories/events_repository.dart';
 import 'features/geo/cubit/geo_cubit.dart';
 import 'features/geo/repositories/geo_repository.dart';
 
@@ -15,6 +17,8 @@ class PiedzivoApp extends StatefulWidget {
   final AppConfigRepository? appConfigRepository;
   final GeoRepository? geoRepository;
   final GeoCubit? geoCubit;
+  final EventsRepository? eventsRepository;
+  final EventsBloc? eventsBloc;
   final GoRouter? router;
   final bool startWithRouter;
 
@@ -23,6 +27,8 @@ class PiedzivoApp extends StatefulWidget {
     this.appConfigRepository,
     this.geoRepository,
     this.geoCubit,
+    this.eventsRepository,
+    this.eventsBloc,
     this.router,
     this.startWithRouter = false,
   });
@@ -36,6 +42,8 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   late final AppConfigRepository _configRepo;
   late final GeoRepository _geoRepo;
   late final GeoCubit _geoCubit;
+  late final EventsRepository _eventsRepo;
+  late final EventsBloc _eventsBloc;
   late final GoRouter _router;
 
   bool _isInitialized = false;
@@ -47,6 +55,8 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
     _configRepo = widget.appConfigRepository ?? AppConfigRepository(apiClient: _apiClient);
     _geoRepo = widget.geoRepository ?? GeoRepository(apiClient: _apiClient);
     _geoCubit = widget.geoCubit ?? GeoCubit(geoRepository: _geoRepo);
+    _eventsRepo = widget.eventsRepository ?? EventsRepository(apiClient: _apiClient);
+    _eventsBloc = widget.eventsBloc ?? EventsBloc(repository: _eventsRepo);
     _router = widget.router ?? appRouter;
     _isInitialized = widget.startWithRouter;
   }
@@ -55,6 +65,9 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   void dispose() {
     if (widget.geoCubit == null) {
       _geoCubit.close();
+    }
+    if (widget.eventsBloc == null) {
+      _eventsBloc.close();
     }
     super.dispose();
   }
@@ -68,8 +81,11 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _geoCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _geoCubit),
+        BlocProvider.value(value: _eventsBloc),
+      ],
       child: _isInitialized
           ? MaterialApp.router(
               title: 'Piedzīvo.lv',

@@ -11,9 +11,14 @@ import 'main_scaffold.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-GoRouter createAppRouter({String initialLocation = '/events'}) {
+GoRouter createAppRouter({
+  GlobalKey<NavigatorState>? navigatorKey,
+  String initialLocation = '/events',
+}) {
+  final navKey = navigatorKey ?? rootNavigatorKey;
+
   return GoRouter(
-    navigatorKey: rootNavigatorKey,
+    navigatorKey: navKey,
     initialLocation: initialLocation,
     routes: [
       StatefulShellRoute.indexedStack(
@@ -75,7 +80,7 @@ GoRouter createAppRouter({String initialLocation = '/events'}) {
 
       // Globālie modālie maršruti
       GoRoute(
-        parentNavigatorKey: rootNavigatorKey,
+        parentNavigatorKey: navKey,
         path: '/search',
         builder: (context, state) => const SearchScreen(),
       ),
@@ -84,3 +89,4 @@ GoRouter createAppRouter({String initialLocation = '/events'}) {
 }
 
 final appRouter = createAppRouter();
+

@@ -36,3 +36,4 @@ class _PlacesListScreenState extends State<PlacesListScreen> {
     );
   }
 }
+

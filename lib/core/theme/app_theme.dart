@@ -4,8 +4,31 @@ import 'app_colors.dart';
 import 'app_dimensions.dart';
 
 class AppTheme {
+  static bool isTestMode = false;
+
+  static TextStyle _font({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+  }) {
+    if (isTestMode) {
+      return TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      );
+    }
+    return GoogleFonts.plusJakartaSans(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
+
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme();
+    final baseTextTheme = isTestMode
+        ? Typography.material2021().black
+        : GoogleFonts.plusJakartaSansTextTheme();
 
     return ThemeData(
       useMaterial3: true,
@@ -35,39 +58,39 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: AppDimensions.buttonBorderRadius,
           ),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: _font(
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       textTheme: baseTextTheme.copyWith(
-        headlineMedium: GoogleFonts.plusJakartaSans(
+        headlineMedium: _font(
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: AppColors.primaryNavy,
         ),
-        titleLarge: GoogleFonts.plusJakartaSans(
+        titleLarge: _font(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.primaryNavy,
         ),
-        titleMedium: GoogleFonts.plusJakartaSans(
+        titleMedium: _font(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.primaryNavy,
         ),
-        bodyLarge: GoogleFonts.plusJakartaSans(
+        bodyLarge: _font(
           fontSize: 15,
           fontWeight: FontWeight.w400,
           color: AppColors.primaryNavy,
         ),
-        bodyMedium: GoogleFonts.plusJakartaSans(
+        bodyMedium: _font(
           fontSize: 13,
           fontWeight: FontWeight.w400,
           color: AppColors.textSecondary,
         ),
-        labelSmall: GoogleFonts.plusJakartaSans(
+        labelSmall: _font(
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),

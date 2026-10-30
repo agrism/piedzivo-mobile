@@ -15,3 +15,4 @@ class PlaceDetailScreen extends StatelessWidget {
     );
   }
 }
+
