@@ -63,3 +63,4 @@ class GeoState extends Equatable {
         errorMessage,
       ];
 }
+

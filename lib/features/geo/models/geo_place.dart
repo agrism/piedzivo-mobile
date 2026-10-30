@@ -87,3 +87,4 @@ class GeoPlaceParent extends Equatable {
   @override
   List<Object?> get props => [id, name, slug, type];
 }
+

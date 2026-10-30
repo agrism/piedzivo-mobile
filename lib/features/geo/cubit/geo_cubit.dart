@@ -92,3 +92,4 @@ class GeoCubit extends Cubit<GeoState> {
     await setMunicipalityWide(!state.isMunicipalityWide);
   }
 }
+
