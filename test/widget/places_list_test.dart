@@ -6,6 +6,10 @@ import 'package:piedzivo/app.dart';
 import 'package:piedzivo/core/navigation/app_router.dart';
 import 'package:piedzivo/core/network/api_client.dart';
 import 'package:piedzivo/core/theme/app_theme.dart';
+import 'package:piedzivo/features/auth/bloc/auth_bloc.dart';
+import 'package:piedzivo/features/auth/bloc/auth_state.dart';
+import 'package:piedzivo/features/auth/models/user.dart';
+import 'package:piedzivo/features/auth/repositories/auth_repository.dart';
 import 'package:piedzivo/features/events/bloc/events_bloc.dart';
 import 'package:piedzivo/features/events/repositories/events_repository.dart';
 import 'package:piedzivo/features/geo/cubit/geo_cubit.dart';
@@ -32,6 +36,8 @@ void main() {
     late EventsBloc eventsBloc;
     late GeoRepository geoRepo;
     late GeoCubit geoCubit;
+    late AuthRepository authRepo;
+    late AuthBloc authBloc;
 
     const mockPlace1 = PlaceListItem(
       id: 'p1',
@@ -127,9 +133,21 @@ void main() {
       placesBloc = PlacesBloc(repository: placesRepo);
       eventsRepo = EventsRepository(apiClient: apiClient);
       eventsBloc = EventsBloc(repository: eventsRepo);
+      authRepo = AuthRepository(apiClient: apiClient);
+      authBloc = AuthBloc(
+        authRepository: authRepo,
+        initialState: const AuthState(
+          status: AuthStatus.authenticated,
+          user: User(id: 'u1', email: 'janis@test.lv', name: 'Jānis'),
+        ),
+      );
       geoRepo = GeoRepository(apiClient: apiClient);
       geoCubit = GeoCubit(geoRepository: geoRepo);
       await geoCubit.loadPlaces(serverChecksum: 'chk1');
+    });
+
+    tearDown(() {
+      authBloc.close();
     });
 
     testWidgets('renders PlacesMiniMap, category headers and PlaceCard elements', (
@@ -137,6 +155,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
+          authBloc: authBloc,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -197,6 +217,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
+          authBloc: authBloc,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -234,6 +256,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
+          authBloc: authBloc,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -268,6 +292,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
+          authBloc: authBloc,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,

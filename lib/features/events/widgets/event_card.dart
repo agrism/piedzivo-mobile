@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../bloc/events_bloc.dart';
 import '../bloc/events_event.dart';
 import '../models/event_list_item.dart';
@@ -257,7 +259,9 @@ class EventCard extends StatelessWidget {
                   // Ieteikt poga
                   InkWell(
                     key: Key('recommend_button_${event.id}'),
-                    onTap: () {
+                    onTap: () async {
+                      if (!await _ensureAuth(context)) return;
+                      if (!context.mounted) return;
                       context.read<EventsBloc>().add(ToggleRecommendEvent(event.id));
                     },
                     borderRadius: BorderRadius.circular(AppDimensions.radiusButton),
@@ -295,7 +299,9 @@ class EventCard extends StatelessWidget {
                   // Sekot poga
                   InkWell(
                     key: Key('follow_button_${event.id}'),
-                    onTap: () {
+                    onTap: () async {
+                      if (!await _ensureAuth(context)) return;
+                      if (!context.mounted) return;
                       context.read<EventsBloc>().add(ToggleFollowEvent(event.id));
                     },
                     borderRadius: BorderRadius.circular(AppDimensions.radiusBadge),
@@ -335,5 +341,18 @@ class EventCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _ensureAuth(BuildContext context) async {
+    try {
+      final authBloc = context.read<AuthBloc>();
+      if (!authBloc.state.isAuthenticated) {
+        final res = await showAuthBottomSheet(context);
+        return res == true;
+      }
+      return true;
+    } catch (_) {
+      return true;
+    }
   }
 }

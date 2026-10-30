@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../../events/models/event_list_item.dart';
 import '../models/place_detail.dart';
 import '../repositories/places_repository.dart';
@@ -69,9 +71,25 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
     });
   }
 
+  Future<bool> _ensureAuth() async {
+    try {
+      final authBloc = context.read<AuthBloc>();
+      if (!authBloc.state.isAuthenticated) {
+        final res = await showAuthBottomSheet(context);
+        return res == true;
+      }
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<void> _toggleRecommend() async {
     final cur = _place;
     if (cur == null) return;
+
+    if (!await _ensureAuth()) return;
+    if (!mounted) return;
 
     final wasRecommended = cur.isRecommendedByMe;
     final newCount = wasRecommended
@@ -100,6 +118,9 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
   Future<void> _toggleFollow() async {
     final cur = _place;
     if (cur == null) return;
+
+    if (!await _ensureAuth()) return;
+    if (!mounted) return;
 
     final wasFollowed = cur.isFollowedByMe;
 

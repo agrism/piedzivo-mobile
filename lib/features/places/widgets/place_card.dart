@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../bloc/places_bloc.dart';
 import '../bloc/places_event.dart';
 import '../models/place_list_item.dart';
@@ -217,7 +219,11 @@ class PlaceCard extends StatelessWidget {
                         InkWell(
                           key: Key('place_recommend_${place.id}'),
                           borderRadius: BorderRadius.circular(AppDimensions.radiusBadge),
-                          onTap: () => context.read<PlacesBloc>().add(ToggleRecommendPlace(place.id)),
+                          onTap: () async {
+                            if (!await _ensureAuth(context)) return;
+                            if (!context.mounted) return;
+                            context.read<PlacesBloc>().add(ToggleRecommendPlace(place.id));
+                          },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
@@ -256,7 +262,11 @@ class PlaceCard extends StatelessWidget {
                         InkWell(
                           key: Key('place_follow_${place.id}'),
                           borderRadius: BorderRadius.circular(AppDimensions.radiusBadge),
-                          onTap: () => context.read<PlacesBloc>().add(ToggleFollowPlace(place.id)),
+                          onTap: () async {
+                            if (!await _ensureAuth(context)) return;
+                            if (!context.mounted) return;
+                            context.read<PlacesBloc>().add(ToggleFollowPlace(place.id));
+                          },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
@@ -322,6 +332,19 @@ class PlaceCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _ensureAuth(BuildContext context) async {
+    try {
+      final authBloc = context.read<AuthBloc>();
+      if (!authBloc.state.isAuthenticated) {
+        final res = await showAuthBottomSheet(context);
+        return res == true;
+      }
+      return true;
+    } catch (_) {
+      return true;
+    }
   }
 }
 

@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../models/event_detail.dart';
 import '../repositories/events_repository.dart';
 import '../utils/event_date_formatter.dart';
@@ -65,9 +67,25 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     });
   }
 
+  Future<bool> _ensureAuth() async {
+    try {
+      final authBloc = context.read<AuthBloc>();
+      if (!authBloc.state.isAuthenticated) {
+        final res = await showAuthBottomSheet(context);
+        return res == true;
+      }
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<void> _toggleRecommend() async {
     final cur = _event;
     if (cur == null) return;
+
+    if (!await _ensureAuth()) return;
+    if (!mounted) return;
 
     final wasRecommended = cur.isRecommendedByMe;
     final newCount = wasRecommended
@@ -97,6 +115,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Future<void> _toggleFollow() async {
     final cur = _event;
     if (cur == null) return;
+
+    if (!await _ensureAuth()) return;
+    if (!mounted) return;
 
     final wasFollowed = cur.isFollowedByMe;
 

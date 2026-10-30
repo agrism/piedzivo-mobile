@@ -12,11 +12,15 @@ import 'features/events/bloc/events_bloc.dart';
 import 'features/events/repositories/events_repository.dart';
 import 'features/geo/cubit/geo_cubit.dart';
 import 'features/geo/repositories/geo_repository.dart';
+import 'features/auth/bloc/auth_bloc.dart';
+import 'features/auth/bloc/auth_event.dart';
+import 'features/auth/repositories/auth_repository.dart';
 import 'features/places/bloc/places_bloc.dart';
 import 'features/places/repositories/places_repository.dart';
 import 'features/search/bloc/search_bloc.dart';
 
 class PiedzivoApp extends StatefulWidget {
+  final ApiClient? apiClient;
   final AppConfigRepository? appConfigRepository;
   final GeoRepository? geoRepository;
   final GeoCubit? geoCubit;
@@ -25,11 +29,14 @@ class PiedzivoApp extends StatefulWidget {
   final PlacesRepository? placesRepository;
   final PlacesBloc? placesBloc;
   final SearchBloc? searchBloc;
+  final AuthRepository? authRepository;
+  final AuthBloc? authBloc;
   final GoRouter? router;
   final bool startWithRouter;
 
   const PiedzivoApp({
     super.key,
+    this.apiClient,
     this.appConfigRepository,
     this.geoRepository,
     this.geoCubit,
@@ -38,6 +45,8 @@ class PiedzivoApp extends StatefulWidget {
     this.placesRepository,
     this.placesBloc,
     this.searchBloc,
+    this.authRepository,
+    this.authBloc,
     this.router,
     this.startWithRouter = false,
   });
@@ -56,6 +65,8 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   late final PlacesRepository _placesRepo;
   late final PlacesBloc _placesBloc;
   late final SearchBloc _searchBloc;
+  late final AuthRepository _authRepo;
+  late final AuthBloc _authBloc;
   late final GoRouter _router;
 
   bool _isInitialized = false;
@@ -63,7 +74,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   @override
   void initState() {
     super.initState();
-    _apiClient = ApiClient(secureStorage: const FlutterSecureStorage());
+    _apiClient = widget.apiClient ?? ApiClient(secureStorage: const FlutterSecureStorage());
     _configRepo = widget.appConfigRepository ?? AppConfigRepository(apiClient: _apiClient);
     _geoRepo = widget.geoRepository ?? GeoRepository(apiClient: _apiClient);
     _geoCubit = widget.geoCubit ?? GeoCubit(geoRepository: _geoRepo);
@@ -76,6 +87,8 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
           eventsRepository: _eventsRepo,
           placesRepository: _placesRepo,
         );
+    _authRepo = widget.authRepository ?? AuthRepository(apiClient: _apiClient);
+    _authBloc = widget.authBloc ?? AuthBloc(authRepository: _authRepo)..add(const AuthCheckRequested());
     _router = widget.router ?? appRouter;
     _isInitialized = widget.startWithRouter;
   }
@@ -93,6 +106,9 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
     }
     if (widget.searchBloc == null) {
       _searchBloc.close();
+    }
+    if (widget.authBloc == null) {
+      _authBloc.close();
     }
     super.dispose();
   }
@@ -112,6 +128,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
         RepositoryProvider.value(value: _geoRepo),
         RepositoryProvider.value(value: _eventsRepo),
         RepositoryProvider.value(value: _placesRepo),
+        RepositoryProvider.value(value: _authRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -119,6 +136,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
           BlocProvider.value(value: _eventsBloc),
           BlocProvider.value(value: _placesBloc),
           BlocProvider.value(value: _searchBloc),
+          BlocProvider.value(value: _authBloc),
         ],
         child: _isInitialized
             ? MaterialApp.router(

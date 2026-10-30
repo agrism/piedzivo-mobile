@@ -138,6 +138,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -183,6 +184,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -226,6 +228,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -267,6 +270,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
@@ -304,6 +308,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         PiedzivoApp(
+          apiClient: apiClient,
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
