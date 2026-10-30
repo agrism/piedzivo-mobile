@@ -45,11 +45,11 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: AppColors.badgeRed),
+                  const Icon(Icons.error_outline, size: 48, color: AppColors.statusRed),
                   const SizedBox(height: 12),
                   Text(
                     state.message,
-                    style: const TextStyle(fontSize: 16, color: AppColors.primaryNavy),
+                    style: const TextStyle(fontSize: 16, color: AppColors.textDark),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -57,12 +57,13 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                       context.read<PlacesBloc>().add(
                             LoadPlaces(
                               placeId: geoState.activePlace?.id,
+                              isMunicipalityWide: geoState.isMunicipalityWide,
                             ),
                           );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryViolet,
-                      foregroundColor: AppColors.cardWhite,
+                      foregroundColor: AppColors.surfaceWhite,
                     ),
                     child: const Text('Mēģināt vēlreiz'),
                   ),
@@ -157,13 +158,13 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                 right: 0,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.cardWhite.withValues(alpha: 0.92),
+                    color: AppColors.surfaceWhite.withOpacity(0.92),
                     border: const Border(
                       bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Colors.black.withOpacity(0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -209,7 +210,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primaryNavy,
+                                    color: AppColors.textDark,
                                   ),
                                 ),
                               ),
@@ -263,7 +264,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                 bottom: _selectedPlace != null ? 220 : 32,
                 child: FloatingActionButton.small(
                   key: const Key('map_recenter_button'),
-                  backgroundColor: AppColors.cardWhite,
+                  backgroundColor: AppColors.surfaceWhite,
                   foregroundColor: AppColors.primaryNavy,
                   elevation: 3,
                   onPressed: () {
@@ -308,15 +309,15 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.accentAmber : AppColors.primaryViolet,
+        color: isSelected ? AppColors.brandGold : AppColors.primaryViolet,
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppColors.cardWhite,
+          color: AppColors.surfaceWhite,
           width: isSelected ? 3 : 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withOpacity(0.25),
             blurRadius: isSelected ? 8 : 4,
             offset: const Offset(0, 2),
           ),
@@ -325,7 +326,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
       child: Center(
         child: Icon(
           Icons.place,
-          color: isSelected ? AppColors.primaryNavy : AppColors.cardWhite,
+          color: isSelected ? AppColors.primaryNavy : AppColors.surfaceWhite,
           size: isSelected ? 26 : 20,
         ),
       ),
@@ -347,7 +348,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryViolet : AppColors.cardWhite,
+            color: isSelected ? AppColors.primaryViolet : AppColors.surfaceWhite,
             borderRadius: BorderRadius.circular(AppDimensions.radiusButton),
             border: Border.all(
               color: isSelected ? AppColors.primaryViolet : AppColors.borderSubtle,
@@ -359,7 +360,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppColors.cardWhite : AppColors.primaryNavy,
+              color: isSelected ? AppColors.surfaceWhite : AppColors.textDark,
             ),
           ),
         ),
@@ -373,7 +374,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
     return Container(
       key: const Key('map_selected_place_card'),
       decoration: BoxDecoration(
-        color: AppColors.cardWhite,
+        color: AppColors.surfaceWhite,
         borderRadius: BorderRadius.circular(AppDimensions.radiusCard),
         border: Border.all(color: AppColors.borderSubtle),
         boxShadow: const [
@@ -498,7 +499,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                             width: 7,
                             height: 7,
                             decoration: BoxDecoration(
-                              color: place.isOpen ? AppColors.success : AppColors.badgeRed,
+                              color: place.isOpen ? AppColors.statusGreen : AppColors.statusRed,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -509,7 +510,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                                   ? place.openingLabel
                                   : (place.isOpen ? 'Atvērts' : 'Slēgts'),
                               style: TextStyle(
-                                color: place.isOpen ? AppColors.success : AppColors.badgeRed,
+                                color: place.isOpen ? AppColors.statusGreen : AppColors.statusRed,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -537,7 +538,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryViolet,
-                  foregroundColor: AppColors.cardWhite,
+                  foregroundColor: AppColors.surfaceWhite,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.radiusButton),
                   ),

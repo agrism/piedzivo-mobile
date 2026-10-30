@@ -1,10 +1,25 @@
 import '../../../core/network/api_client.dart';
+import '../models/place_detail.dart';
 import '../models/place_list_item.dart';
 
 class PlacesRepository {
   final ApiClient apiClient;
 
   PlacesRepository({required this.apiClient});
+
+  Future<PlaceDetail> getPlaceDetail(String id) async {
+    final response = await apiClient.dio.get('/places/$id');
+    final dynamic rawData = response.data;
+    final Map<String, dynamic> dataMap;
+    if (rawData is Map<String, dynamic>) {
+      dataMap = rawData;
+    } else if (rawData is Map) {
+      dataMap = Map<String, dynamic>.from(rawData);
+    } else {
+      throw Exception('Invalid place detail response format');
+    }
+    return PlaceDetail.fromJson(dataMap);
+  }
 
   Future<List<PlaceListItem>> getPlaces({
     String? placeId,

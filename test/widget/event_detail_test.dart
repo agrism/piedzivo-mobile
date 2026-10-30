@@ -10,6 +10,9 @@ import 'package:piedzivo/features/events/bloc/events_bloc.dart';
 import 'package:piedzivo/features/events/models/event_detail.dart';
 import 'package:piedzivo/features/events/repositories/events_repository.dart';
 import 'package:piedzivo/features/events/screens/event_detail_screen.dart';
+import 'package:piedzivo/features/places/bloc/places_bloc.dart';
+import 'package:piedzivo/features/places/repositories/places_repository.dart';
+import 'package:piedzivo/features/places/screens/place_detail_screen.dart';
 import 'package:piedzivo/features/geo/cubit/geo_cubit.dart';
 import 'package:piedzivo/features/geo/models/geo_place.dart';
 import 'package:piedzivo/features/geo/repositories/geo_repository.dart';
@@ -23,6 +26,8 @@ void main() {
     late ApiClient apiClient;
     late EventsRepository eventsRepo;
     late EventsBloc eventsBloc;
+    late PlacesRepository placesRepo;
+    late PlacesBloc placesBloc;
     late GeoRepository geoRepo;
     late GeoCubit geoCubit;
 
@@ -73,16 +78,29 @@ void main() {
       mockAdapter = MockAdapter();
 
       mockAdapter.handler = (options) {
+        if (options.path.contains('/recommend') || options.path.contains('/follow')) {
+          return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
+        }
         if (options.path == '/events/evt-100') {
           return ResponseBody.fromString(
             jsonEncode({'data': sampleDetail.toJson()}),
             200,
             headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
           );
-        } else if (options.path.contains('/recommend')) {
-          return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
-        } else if (options.path.contains('/follow')) {
-          return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
+        }
+        if (options.path.contains('/places/')) {
+          return ResponseBody.fromString(
+            jsonEncode({
+              'data': {
+                'id': 'place-daugavpils-vn',
+                'title': 'Vienības nams',
+                'slug': 'vienibas-nams',
+                'city': 'Daugavpils',
+              }
+            }),
+            200,
+            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+          );
         }
         return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
       };
@@ -93,6 +111,8 @@ void main() {
       apiClient = ApiClient(secureStorage: fakeStorage, dioClient: dio);
       eventsRepo = EventsRepository(apiClient: apiClient);
       eventsBloc = EventsBloc(repository: eventsRepo);
+      placesRepo = PlacesRepository(apiClient: apiClient);
+      placesBloc = PlacesBloc(repository: placesRepo);
       geoRepo = GeoRepository(apiClient: apiClient);
       geoCubit = GeoCubit(geoRepository: geoRepo);
       await geoCubit.loadPlaces(serverChecksum: 'chk1');
@@ -106,6 +126,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
+          placesBloc: placesBloc,
+          placesRepository: placesRepo,
           router: createAppRouter(
             navigatorKey: GlobalKey<NavigatorState>(),
             initialLocation: '/events/evt-100',
@@ -157,6 +179,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
+          placesBloc: placesBloc,
+          placesRepository: placesRepo,
           router: createAppRouter(
             navigatorKey: GlobalKey<NavigatorState>(),
             initialLocation: '/events/evt-100',
@@ -207,6 +231,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
+          placesBloc: placesBloc,
+          placesRepository: placesRepo,
           router: createAppRouter(
             navigatorKey: GlobalKey<NavigatorState>(),
             initialLocation: '/events/evt-100',
@@ -224,10 +250,14 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('event_venue_card')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('event_venue_card')));
+      await tester.runAsync(() async {
+        await Future.delayed(const Duration(milliseconds: 150));
+      });
       await tester.pumpAndSettle();
 
       // Pārbaudām, ka esam pārgājuši uz PlaceDetailScreen
-      expect(find.textContaining('place-daugavpils-vn'), findsOneWidget);
+      expect(find.byType(PlaceDetailScreen), findsOneWidget);
+      expect(find.text('Vienības nams'), findsOneWidget);
     });
 
     testWidgets('Tapping back button pops back to previous screen', (
@@ -271,6 +301,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepo,
+          placesBloc: placesBloc,
+          placesRepository: placesRepo,
           router: router,
           startWithRouter: true,
         ),

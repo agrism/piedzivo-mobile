@@ -16,6 +16,7 @@ import 'package:piedzivo/features/places/bloc/places_state.dart';
 import 'package:piedzivo/features/places/models/place_list_item.dart';
 import 'package:piedzivo/features/places/repositories/places_repository.dart';
 import 'package:piedzivo/features/places/screens/fullscreen_map_screen.dart';
+import 'package:piedzivo/features/places/screens/place_detail_screen.dart';
 import 'package:piedzivo/features/places/widgets/places_mini_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../unit/api_client_test.dart';
@@ -94,7 +95,17 @@ void main() {
       mockAdapter = MockAdapter();
 
       mockAdapter.handler = (options) {
-        if (options.path.contains('/places') && !options.path.contains('/recommend') && !options.path.contains('/follow')) {
+        if (options.path.contains('/recommend') || options.path.contains('/follow')) {
+          return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
+        }
+        if (options.path == '/places/p1' || options.path == '/places/p2') {
+          return ResponseBody.fromString(
+            jsonEncode({'data': mockPlace1.toJson()}),
+            200,
+            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+          );
+        }
+        if (options.path.startsWith('/places')) {
           return ResponseBody.fromString(
             jsonEncode({
               'data': [mockPlace1.toJson(), mockPlace2.toJson()],
@@ -104,8 +115,6 @@ void main() {
           );
         } else if (options.path.contains('/events')) {
           return ResponseBody.fromString(jsonEncode({'data': []}), 200);
-        } else if (options.path.contains('/recommend') || options.path.contains('/follow')) {
-          return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
         }
         return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
       };
@@ -281,10 +290,14 @@ void main() {
 
       // Nospiežam uz Cēsu pils kartītes
       await tester.tap(find.text('Cēsu viduslaiku pils'));
+      await tester.runAsync(() async {
+        await Future.delayed(const Duration(milliseconds: 150));
+      });
       await tester.pumpAndSettle();
 
       // Pārbaudām, ka esam PlaceDetailScreen
-      expect(find.textContaining('p1'), findsOneWidget);
+      expect(find.byType(PlaceDetailScreen), findsOneWidget);
+      expect(find.text('Cēsu viduslaiku pils'), findsOneWidget);
     });
   });
 }

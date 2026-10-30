@@ -16,6 +16,7 @@ import 'package:piedzivo/features/places/bloc/places_state.dart';
 import 'package:piedzivo/features/places/models/place_list_item.dart';
 import 'package:piedzivo/features/places/repositories/places_repository.dart';
 import 'package:piedzivo/features/places/screens/fullscreen_map_screen.dart';
+import 'package:piedzivo/features/places/screens/place_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../unit/api_client_test.dart';
 
@@ -97,7 +98,17 @@ void main() {
       mockAdapter = MockAdapter();
 
       mockAdapter.handler = (options) {
-        if (options.path.contains('/places') && !options.path.contains('/recommend')) {
+        if (options.path.contains('/recommend') || options.path.contains('/follow')) {
+          return ResponseBody.fromString(jsonEncode({'status': 'ok'}), 200);
+        }
+        if (options.path == '/places/p1' || options.path == '/places/p2') {
+          return ResponseBody.fromString(
+            jsonEncode({'data': mockPlace1.toJson()}),
+            200,
+            headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
+          );
+        }
+        if (options.path.startsWith('/places')) {
           return ResponseBody.fromString(
             jsonEncode({
               'data': [mockPlace1.toJson(), mockPlace2.toJson()],
@@ -241,10 +252,14 @@ void main() {
 
       // Nospiežam "Atvērt vietu" pogu
       await tester.tap(find.byKey(const Key('map_card_open_place_button')));
+      await tester.runAsync(() async {
+        await Future.delayed(const Duration(milliseconds: 150));
+      });
       await tester.pumpAndSettle();
 
       // Esam PlaceDetailScreen
-      expect(find.textContaining('p1'), findsOneWidget);
+      expect(find.byType(PlaceDetailScreen), findsOneWidget);
+      expect(find.text('Cēsu viduslaiku pils'), findsOneWidget);
     });
 
     testWidgets('Tapping category filter chip filters markers on map', (
