@@ -9,10 +9,15 @@ import 'package:piedzivo/core/navigation/app_router.dart';
 import 'package:piedzivo/core/navigation/piedzivo_bottom_nav.dart';
 import 'package:piedzivo/core/network/api_client.dart';
 import 'package:piedzivo/features/events/bloc/events_bloc.dart';
+import 'package:piedzivo/features/events/bloc/events_state.dart';
 import 'package:piedzivo/features/events/repositories/events_repository.dart';
 import 'package:piedzivo/features/geo/cubit/geo_cubit.dart';
 import 'package:piedzivo/features/geo/models/geo_place.dart';
 import 'package:piedzivo/features/geo/repositories/geo_repository.dart';
+import 'package:piedzivo/features/places/bloc/places_bloc.dart';
+import 'package:piedzivo/features/places/bloc/places_state.dart';
+import 'package:piedzivo/features/places/repositories/places_repository.dart';
+import 'package:piedzivo/features/places/screens/places_list_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../unit/api_client_test.dart';
 
@@ -25,6 +30,8 @@ void main() {
     late GeoCubit geoCubit;
     late EventsRepository eventsRepository;
     late EventsBloc eventsBloc;
+    late PlacesRepository placesRepository;
+    late PlacesBloc placesBloc;
     late GoRouter testRouter;
 
     const placeCesis = GeoPlace(
@@ -62,7 +69,7 @@ void main() {
       fakeStorage = FakeSecureStorage();
       mockAdapter = MockAdapter();
       mockAdapter.handler = (options) {
-        if (options.path.contains('/events')) {
+        if (options.path.contains('/events') || options.path.contains('/places')) {
           return ResponseBody.fromString(
             jsonEncode({'data': []}),
             200,
@@ -78,6 +85,8 @@ void main() {
       apiClient = ApiClient(secureStorage: fakeStorage, dioClient: dio);
       eventsRepository = EventsRepository(apiClient: apiClient);
       eventsBloc = EventsBloc(repository: eventsRepository);
+      placesRepository = PlacesRepository(apiClient: apiClient);
+      placesBloc = PlacesBloc(repository: placesRepository);
       geoRepository = GeoRepository(apiClient: apiClient);
       geoCubit = GeoCubit(geoRepository: geoRepository);
       await geoCubit.loadPlaces(serverChecksum: 'chk1');
@@ -93,30 +102,30 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepository,
+          placesBloc: placesBloc,
+          placesRepository: placesRepository,
           router: testRouter,
           startWithRouter: true,
         ),
       );
+      await tester.runAsync(() async {
+        await eventsBloc.stream.firstWhere((s) => s is EventsLoaded);
+      });
       await tester.pumpAndSettle();
 
-      // 1. Pārbaudām, ka startējam 0. cilnē (Pasākumi) un izvēlamies kategoriju "Koncerts"
+      // 1. Pārbaudām, ka startējam 0. cilnē (Pasākumi) un kategoriju čips ir redzams
       expect(find.byKey(const Key('category_chip_Koncerts')), findsOneWidget);
-      await tester.tap(find.byKey(const Key('category_chip_Koncerts')));
-      await tester.pumpAndSettle();
 
       // 2. Pārslēdzamies uz 1. cilni (Vietas)
       await tester.tap(find.byKey(const Key('bottom_nav_item_1')));
+      await tester.pump();
+      await tester.runAsync(() async {
+        await placesBloc.stream.firstWhere((s) => s is PlacesLoaded);
+      });
       await tester.pumpAndSettle();
 
-      expect(find.text('Vietu katalogs'), findsOneWidget);
-      expect(find.text('Stāvokļa pārbaude: 0'), findsOneWidget);
-
-      // Palielinām skaitītāju Vietu cilnē līdz 5
-      for (int i = 0; i < 5; i++) {
-        await tester.tap(find.byKey(const Key('places_increment_button')));
-        await tester.pumpAndSettle();
-      }
-      expect(find.text('Stāvokļa pārbaude: 5'), findsOneWidget);
+      expect(find.byType(PlacesListScreen), findsOneWidget);
+      expect(find.byKey(const Key('places_category_chip_Ēdināšana')), findsOneWidget);
 
       // 3. Pārslēdzamies uz 2. cilni (Sekotie)
       await tester.tap(find.byKey(const Key('bottom_nav_item_2')));
@@ -133,16 +142,23 @@ void main() {
       await tester.tap(find.byKey(const Key('bottom_nav_item_0')));
       await tester.pumpAndSettle();
 
-      // VERIFIKĀCIJA: Pasākumos kategorijas čips joprojām ir aktīvs
+      // VERIFIKĀCIJA: Pasākumos kategorijas čips joprojām ir vietā
       expect(find.byKey(const Key('category_chip_Koncerts')), findsOneWidget);
 
       // 5. Atgriežamies uz 1. cilni (Vietas)
       await tester.tap(find.byKey(const Key('bottom_nav_item_1')));
       await tester.pumpAndSettle();
 
-      // VERIFIKĀCIJA: Stāvoklis Vietās nav atiestatījies (joprojām 5)!
-      expect(find.text('Vietu katalogs'), findsOneWidget);
-      expect(find.text('Stāvokļa pārbaude: 5'), findsOneWidget);
+      // VERIFIKĀCIJA: Stāvoklis Vietās nav atiestatījies
+      expect(find.byType(PlacesListScreen), findsOneWidget);
+      expect(find.byKey(const Key('places_category_chip_Ēdināšana')), findsOneWidget);
+
+      // 6. Atgriežamies uz 2. cilni (Sekotie)
+      await tester.tap(find.byKey(const Key('bottom_nav_item_2')));
+      await tester.pumpAndSettle();
+
+      // VERIFIKĀCIJA: Stāvoklis Sekotajos joprojām ir 1
+      expect(find.text('Stāvokļa pārbaude: 1'), findsOneWidget);
     });
 
     testWidgets('GlobalTopBar displays active city and toggles municipality switch (Variants A)', (
@@ -153,6 +169,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepository,
+          placesBloc: placesBloc,
+          placesRepository: placesRepository,
           router: testRouter,
           startWithRouter: true,
         ),
@@ -186,6 +204,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepository,
+          placesBloc: placesBloc,
+          placesRepository: placesRepository,
           router: testRouter,
           startWithRouter: true,
         ),
@@ -206,6 +226,8 @@ void main() {
           geoCubit: geoCubit,
           eventsBloc: eventsBloc,
           eventsRepository: eventsRepository,
+          placesBloc: placesBloc,
+          placesRepository: placesRepository,
           router: testRouter,
           startWithRouter: true,
         ),

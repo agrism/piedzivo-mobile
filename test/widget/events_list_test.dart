@@ -7,6 +7,7 @@ import 'package:piedzivo/core/theme/app_theme.dart';
 import 'package:piedzivo/core/navigation/app_router.dart';
 import 'package:piedzivo/core/network/api_client.dart';
 import 'package:piedzivo/features/events/bloc/events_bloc.dart';
+import 'package:piedzivo/features/events/bloc/events_state.dart';
 import 'package:piedzivo/features/events/models/event_list_item.dart';
 import 'package:piedzivo/features/events/repositories/events_repository.dart';
 import 'package:piedzivo/features/events/widgets/event_card.dart';
@@ -126,7 +127,9 @@ void main() {
         ),
       );
       await tester.runAsync(() async {
-        await Future.delayed(const Duration(milliseconds: 200));
+        if (eventsBloc.state is! EventsLoaded) {
+          await eventsBloc.stream.firstWhere((s) => s is EventsLoaded);
+        }
       });
       await tester.pumpAndSettle();
 
@@ -153,7 +156,10 @@ void main() {
       // Taps uz '🎟️ Bezmaksas' filtra čipa
       await tester.tap(find.byKey(const Key('filter_chip_free')));
       await tester.runAsync(() async {
-        await Future.delayed(const Duration(milliseconds: 100));
+        final st = eventsBloc.state;
+        if (st is! EventsLoaded || !st.isFreeOnly) {
+          await eventsBloc.stream.firstWhere((s) => s is EventsLoaded && s.isFreeOnly);
+        }
       });
       await tester.pumpAndSettle();
 
@@ -175,7 +181,9 @@ void main() {
         ),
       );
       await tester.runAsync(() async {
-        await Future.delayed(const Duration(milliseconds: 200));
+        if (eventsBloc.state is! EventsLoaded) {
+          await eventsBloc.stream.firstWhere((s) => s is EventsLoaded);
+        }
       });
       await tester.pumpAndSettle();
 
