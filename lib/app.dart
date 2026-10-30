@@ -88,7 +88,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
           placesRepository: _placesRepo,
         );
     _authRepo = widget.authRepository ?? AuthRepository(apiClient: _apiClient);
-    _authBloc = widget.authBloc ?? AuthBloc(authRepository: _authRepo)..add(const AuthCheckRequested());
+    _authBloc = widget.authBloc ?? (AuthBloc(authRepository: _authRepo)..add(const AuthCheckRequested()));
     _router = widget.router ?? appRouter;
     _isInitialized = widget.startWithRouter;
   }
