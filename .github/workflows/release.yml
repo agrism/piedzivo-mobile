@@ -86,6 +86,10 @@ jobs:
 
       - name: Build macOS Release
         run: flutter build macos --release
+        env:
+          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGNING_REQUIRED: "NO"
+          CODE_SIGNING_ALLOWED: "NO"
 
       - name: Package macOS App (.zip)
         run: |
