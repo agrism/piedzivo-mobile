@@ -138,7 +138,7 @@ void main() {
 
         if (path.startsWith('/events')) {
           final q = options.queryParameters['q'] as String? ?? '';
-          final placeId = options.queryParameters['place_id'] as String?;
+          final placeId = (options.queryParameters['geo_place_id'] ?? options.queryParameters['place_id']) as String?;
 
           // If searching in Cēsis for "opera", return empty (to test nationwide fallback)
           if (q.contains('opera') && placeId != null) {
@@ -170,7 +170,7 @@ void main() {
 
         if (path.startsWith('/places')) {
           final q = options.queryParameters['q'] as String? ?? '';
-          final placeId = options.queryParameters['place_id'] as String?;
+          final placeId = (options.queryParameters['geo_place_id'] ?? options.queryParameters['place_id']) as String?;
 
           if (q.contains('opera') && placeId != null) {
             return ResponseBody.fromString(
