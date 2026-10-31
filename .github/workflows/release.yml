@@ -90,6 +90,12 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Install CocoaPods
+        run: |
+          cd macos
+          pod install
+          cd ..
+
       - name: Build macOS Release
         run: flutter build macos --release
         env:
