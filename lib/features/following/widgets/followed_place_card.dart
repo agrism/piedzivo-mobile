@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_url_helper.dart';
 import '../../places/bloc/places_bloc.dart';
 import '../../places/bloc/places_event.dart';
 import '../bloc/following_bloc.dart';
@@ -51,7 +52,7 @@ class FollowedPlaceCard extends StatelessWidget {
                           place.primaryImageUrl!.isNotEmpty &&
                           !AppTheme.isTestMode
                       ? CachedNetworkImage(
-                          imageUrl: place.primaryImageUrl!,
+                          imageUrl: webSafeImageUrl(place.primaryImageUrl)!,
                           fit: BoxFit.cover,
                           placeholder: (_, __) => Container(
                             color: AppColors.backgroundLight,

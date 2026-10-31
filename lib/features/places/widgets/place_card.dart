@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_url_helper.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../bloc/places_bloc.dart';
@@ -46,7 +47,7 @@ class PlaceCard extends StatelessWidget {
                               place.primaryImageUrl!.isNotEmpty &&
                               !AppTheme.isTestMode
                           ? CachedNetworkImage(
-                              imageUrl: place.primaryImageUrl!,
+                              imageUrl: webSafeImageUrl(place.primaryImageUrl)!,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
                                 color: AppColors.backgroundLight,

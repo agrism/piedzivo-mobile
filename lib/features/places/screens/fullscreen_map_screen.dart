@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_url_helper.dart';
 import '../../geo/cubit/geo_cubit.dart';
 import '../bloc/places_bloc.dart';
 import '../bloc/places_event.dart';
@@ -404,7 +405,7 @@ class _FullscreenMapScreenState extends State<FullscreenMapScreen> {
                             place.primaryImageUrl!.isNotEmpty &&
                             !AppTheme.isTestMode
                         ? CachedNetworkImage(
-                            imageUrl: place.primaryImageUrl!,
+                            imageUrl: webSafeImageUrl(place.primaryImageUrl)!,
                             fit: BoxFit.cover,
                             placeholder: (_, __) => Container(
                               color: AppColors.backgroundLight,

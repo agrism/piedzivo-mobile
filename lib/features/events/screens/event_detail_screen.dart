@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
+import '../../../core/utils/image_url_helper.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../../feedback/models/feedback_submission.dart';
@@ -238,7 +239,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     fit: StackFit.expand,
                     children: [
                       CachedNetworkImage(
-                        imageUrl: event.imageUrl!,
+                        imageUrl: webSafeImageUrl(event.imageUrl)!,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
                           color: AppColors.primaryNavy,
@@ -276,7 +277,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           key: const Key('event_detail_zoom_button'),
                           onTap: () => ImageZoomDialog.show(
                             context,
-                            imageUrl: event.imageUrl!,
+                            imageUrl: webSafeImageUrl(event.imageUrl)!,
                             title: event.title,
                           ),
                           child: Container(

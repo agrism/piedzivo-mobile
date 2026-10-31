@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/image_url_helper.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../../events/models/event_list_item.dart';
@@ -288,7 +289,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                               },
                               child: !AppTheme.isTestMode
                                   ? CachedNetworkImage(
-                                      imageUrl: imgUrl,
+                                      imageUrl: webSafeImageUrl(imgUrl) ?? imgUrl,
                                       fit: BoxFit.cover,
                                       placeholder: (_, __) => Container(
                                         color: AppColors.borderSubtle,
@@ -952,7 +953,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                           event.imageUrl!.isNotEmpty &&
                           !AppTheme.isTestMode
                       ? CachedNetworkImage(
-                          imageUrl: event.imageUrl!,
+                          imageUrl: webSafeImageUrl(event.imageUrl)!,
                           fit: BoxFit.cover,
                           placeholder: (_, __) => Container(color: AppColors.borderSubtle),
                           errorWidget: (_, __, ___) => Container(color: AppColors.borderSubtle),

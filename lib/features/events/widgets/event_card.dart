@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
+import '../../../core/utils/image_url_helper.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../bloc/events_bloc.dart';
@@ -52,7 +53,7 @@ class EventCard extends StatelessWidget {
                       height: 64,
                       child: event.imageUrl != null && event.imageUrl!.isNotEmpty
                           ? CachedNetworkImage(
-                              imageUrl: event.imageUrl!,
+                              imageUrl: webSafeImageUrl(event.imageUrl)!,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
                                 color: AppColors.backgroundLight,

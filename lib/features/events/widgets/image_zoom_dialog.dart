@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/image_url_helper.dart';
 
 class ImageZoomDialog extends StatelessWidget {
   final String imageUrl;
@@ -31,7 +32,7 @@ class ImageZoomDialog extends StatelessWidget {
           // Zoomable photo view
           Center(
             child: PhotoView(
-              imageProvider: CachedNetworkImageProvider(imageUrl),
+              imageProvider: CachedNetworkImageProvider(webSafeImageUrl(imageUrl) ?? imageUrl),
               backgroundDecoration: const BoxDecoration(color: Colors.transparent),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.covered * 2.5,
