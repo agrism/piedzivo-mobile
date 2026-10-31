@@ -1,4 +1,4 @@
-name: Build & Release Multi-Platform (Android, macOS, Windows)
+name: Build & Release All Platforms (Android, macOS, Windows, Web & GitHub Pages)
 
 on:
   push:
@@ -12,13 +12,19 @@ on:
         type: boolean
         default: true
       tag_name:
-        description: 'Tag nosaukums relīzei (piemēram: v1.0.1)'
+        description: 'Tag nosaukums relīzei (piemēram: v1.0.3)'
         required: false
         type: string
-        default: 'v1.0.1'
+        default: 'v1.0.3'
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-and-release"
+  cancel-in-progress: false
 
 jobs:
   build-android:
@@ -139,9 +145,59 @@ jobs:
           path: piedzivo-windows.zip
           if-no-files-found: error
 
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Web Release
+        run: flutter build web --release --base-href /piedzivo-mobile/
+
+      - name: Package Web App (.zip)
+        run: |
+          cd build/web
+          zip -r ../../piedzivo-web.zip .
+          cd ../..
+
+      - name: Upload Web Artifact for Release
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-zip
+          path: piedzivo-web.zip
+          if-no-files-found: error
+
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: build-web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   release:
     name: Publish Multi-Platform GitHub Release
-    needs: [build-android, build-macos, build-windows]
+    needs: [build-android, build-macos, build-windows, build-web]
     if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
     runs-on: ubuntu-latest
 
@@ -173,5 +229,6 @@ jobs:
             release-assets/piedzivo-android.apk
             release-assets/piedzivo-macos.zip
             release-assets/piedzivo-windows.zip
+            release-assets/piedzivo-web.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
