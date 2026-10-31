@@ -55,3 +55,4 @@ class FeedbackReset extends FeedbackEvent {
   @override
   List<Object?> get props => [contextType, contextId, contextTitle, contactEmail];
 }
+
