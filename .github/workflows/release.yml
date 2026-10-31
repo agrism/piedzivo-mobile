@@ -1,0 +1,84 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Izveidot GitHub Release ar APK failu'
+        required: true
+        type: boolean
+        default: true
+      tag_name:
+        description: 'Tag nosaukums relīzei (piemēram: v1.0.0)'
+        required: false
+        type: string
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Analyze Project
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - name: Determine Release Tag
+        id: release_tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: Release ${{ steps.release_tag.outputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
