@@ -23,6 +23,8 @@ class EventsRepository {
 
   Future<List<EventListItem>> getEvents({
     String? placeId,
+    String? geoPlaceId,
+    String? venueId,
     String? category,
     bool? isFree,
     String? date,
@@ -30,8 +32,12 @@ class EventsRepository {
   }) async {
     final Map<String, dynamic> queryParams = {};
 
-    if (placeId != null && placeId.isNotEmpty) {
-      queryParams['place_id'] = placeId;
+    final effectiveGeoPlaceId = geoPlaceId ?? placeId;
+    if (effectiveGeoPlaceId != null && effectiveGeoPlaceId.isNotEmpty) {
+      queryParams['geo_place_id'] = effectiveGeoPlaceId;
+    }
+    if (venueId != null && venueId.isNotEmpty) {
+      queryParams['place_id'] = venueId;
     }
     if (category != null && category.isNotEmpty) {
       queryParams['category'] = category;

@@ -19,6 +19,8 @@ class FakeEventsRepository implements EventsRepository {
   @override
   Future<List<EventListItem>> getEvents({
     String? placeId,
+    String? geoPlaceId,
+    String? venueId,
     String? category,
     bool? isFree,
     String? date,
@@ -43,6 +45,7 @@ class FakePlacesRepository implements PlacesRepository {
   @override
   Future<List<PlaceListItem>> getPlaces({
     String? placeId,
+    String? geoPlaceId,
     String? search,
     String? category,
     int? limit,

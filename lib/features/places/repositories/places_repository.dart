@@ -23,13 +23,15 @@ class PlacesRepository {
 
   Future<List<PlaceListItem>> getPlaces({
     String? placeId,
+    String? geoPlaceId,
     String? category,
     String? search,
   }) async {
     final Map<String, dynamic> queryParams = {};
 
-    if (placeId != null && placeId.isNotEmpty) {
-      queryParams['place_id'] = placeId;
+    final effectiveGeoPlaceId = geoPlaceId ?? placeId;
+    if (effectiveGeoPlaceId != null && effectiveGeoPlaceId.isNotEmpty) {
+      queryParams['geo_place_id'] = effectiveGeoPlaceId;
     }
     if (category != null && category.isNotEmpty) {
       queryParams['category'] = category;
