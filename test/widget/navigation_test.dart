@@ -8,6 +8,10 @@ import 'package:piedzivo/core/theme/app_theme.dart';
 import 'package:piedzivo/core/navigation/app_router.dart';
 import 'package:piedzivo/core/navigation/piedzivo_bottom_nav.dart';
 import 'package:piedzivo/core/network/api_client.dart';
+import 'package:piedzivo/features/auth/bloc/auth_bloc.dart';
+import 'package:piedzivo/features/auth/bloc/auth_state.dart';
+import 'package:piedzivo/features/auth/models/user.dart';
+import 'package:piedzivo/features/auth/repositories/auth_repository.dart';
 import 'package:piedzivo/features/events/bloc/events_bloc.dart';
 import 'package:piedzivo/features/events/bloc/events_state.dart';
 import 'package:piedzivo/features/events/repositories/events_repository.dart';
@@ -33,6 +37,8 @@ void main() {
     late EventsBloc eventsBloc;
     late PlacesRepository placesRepository;
     late PlacesBloc placesBloc;
+    late AuthRepository authRepository;
+    late AuthBloc authBloc;
     late GoRouter testRouter;
 
     const placeCesis = GeoPlace(
@@ -88,6 +94,14 @@ void main() {
       eventsBloc = EventsBloc(repository: eventsRepository);
       placesRepository = PlacesRepository(apiClient: apiClient);
       placesBloc = PlacesBloc(repository: placesRepository);
+      authRepository = AuthRepository(apiClient: apiClient);
+      authBloc = AuthBloc(
+        authRepository: authRepository,
+        initialState: const AuthState(
+          status: AuthStatus.authenticated,
+          user: User(id: 'u1', email: 'test@example.com'),
+        ),
+      );
       geoRepository = GeoRepository(apiClient: apiClient);
       geoCubit = GeoCubit(geoRepository: geoRepository);
       await geoCubit.loadPlaces(serverChecksum: 'chk1');
@@ -106,6 +120,8 @@ void main() {
           eventsRepository: eventsRepository,
           placesBloc: placesBloc,
           placesRepository: placesRepository,
+          authBloc: authBloc,
+          authRepository: authRepository,
           router: testRouter,
           startWithRouter: true,
         ),
@@ -133,12 +149,13 @@ void main() {
       await tester.tap(find.byKey(const Key('bottom_nav_item_2')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Mani sekotie pasākumi un vietas'), findsOneWidget);
-      expect(find.text('Stāvokļa pārbaude: 0'), findsOneWidget);
+      expect(find.byKey(const Key('following_tab_events')), findsOneWidget);
+      expect(find.byKey(const Key('following_tab_places')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('following_increment_button')));
+      // Pārslēdzamies uz apakšcilni "Manas Vietas"
+      await tester.tap(find.byKey(const Key('following_tab_places')));
       await tester.pumpAndSettle();
-      expect(find.text('Stāvokļa pārbaude: 1'), findsOneWidget);
+      expect(find.text('Nav sekotu vietu'), findsOneWidget);
 
       // 4. Atgriežamies atpakaļ uz 0. cilni (Pasākumi)
       await tester.tap(find.byKey(const Key('bottom_nav_item_0')));
@@ -159,8 +176,8 @@ void main() {
       await tester.tap(find.byKey(const Key('bottom_nav_item_2')));
       await tester.pumpAndSettle();
 
-      // VERIFIKĀCIJA: Stāvoklis Sekotajos joprojām ir 1
-      expect(find.text('Stāvokļa pārbaude: 1'), findsOneWidget);
+      // VERIFIKĀCIJA: Sekotajos joprojām ir aktīva apakšcilne "Manas Vietas"
+      expect(find.text('Nav sekotu vietu'), findsOneWidget);
     });
 
     testWidgets('GlobalTopBar displays active city and toggles municipality switch (Variants A)', (

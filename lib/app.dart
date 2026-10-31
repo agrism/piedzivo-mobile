@@ -15,6 +15,8 @@ import 'features/geo/repositories/geo_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/repositories/auth_repository.dart';
+import 'features/following/bloc/following_bloc.dart';
+import 'features/following/repositories/following_repository.dart';
 import 'features/places/bloc/places_bloc.dart';
 import 'features/places/repositories/places_repository.dart';
 import 'features/search/bloc/search_bloc.dart';
@@ -31,6 +33,8 @@ class PiedzivoApp extends StatefulWidget {
   final SearchBloc? searchBloc;
   final AuthRepository? authRepository;
   final AuthBloc? authBloc;
+  final FollowingRepository? followingRepository;
+  final FollowingBloc? followingBloc;
   final GoRouter? router;
   final bool startWithRouter;
 
@@ -47,6 +51,8 @@ class PiedzivoApp extends StatefulWidget {
     this.searchBloc,
     this.authRepository,
     this.authBloc,
+    this.followingRepository,
+    this.followingBloc,
     this.router,
     this.startWithRouter = false,
   });
@@ -67,6 +73,8 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   late final SearchBloc _searchBloc;
   late final AuthRepository _authRepo;
   late final AuthBloc _authBloc;
+  late final FollowingRepository _followingRepo;
+  late final FollowingBloc _followingBloc;
   late final GoRouter _router;
 
   bool _isInitialized = false;
@@ -89,6 +97,8 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
         );
     _authRepo = widget.authRepository ?? AuthRepository(apiClient: _apiClient);
     _authBloc = widget.authBloc ?? (AuthBloc(authRepository: _authRepo)..add(const AuthCheckRequested()));
+    _followingRepo = widget.followingRepository ?? FollowingRepository(apiClient: _apiClient);
+    _followingBloc = widget.followingBloc ?? FollowingBloc(repository: _followingRepo);
     _router = widget.router ?? appRouter;
     _isInitialized = widget.startWithRouter;
   }
@@ -110,6 +120,9 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
     if (widget.authBloc == null) {
       _authBloc.close();
     }
+    if (widget.followingBloc == null) {
+      _followingBloc.close();
+    }
     super.dispose();
   }
 
@@ -129,6 +142,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
         RepositoryProvider.value(value: _eventsRepo),
         RepositoryProvider.value(value: _placesRepo),
         RepositoryProvider.value(value: _authRepo),
+        RepositoryProvider.value(value: _followingRepo),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -137,6 +151,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
           BlocProvider.value(value: _placesBloc),
           BlocProvider.value(value: _searchBloc),
           BlocProvider.value(value: _authBloc),
+          BlocProvider.value(value: _followingBloc),
         ],
         child: _isInitialized
             ? MaterialApp.router(
