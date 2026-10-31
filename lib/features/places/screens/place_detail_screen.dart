@@ -10,6 +10,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/widgets/auth_bottom_sheet.dart';
 import '../../events/models/event_list_item.dart';
+import '../../feedback/models/feedback_submission.dart';
+import '../../feedback/widgets/feedback_bottom_sheet.dart';
 import '../models/place_detail.dart';
 import '../repositories/places_repository.dart';
 import '../widgets/place_gallery_zoom_dialog.dart';
@@ -693,6 +695,28 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                       return _buildUpcomingEventTile(context, event);
                     }),
                   ],
+
+                  const SizedBox(height: 24),
+                  Center(
+                    child: TextButton.icon(
+                      key: const Key('place_feedback_button'),
+                      onPressed: () => showFeedbackBottomSheet(
+                        context,
+                        contextType: FeedbackContextType.place,
+                        contextId: place.id,
+                        contextTitle: place.title,
+                      ),
+                      icon: const Icon(Icons.outlined_flag_rounded, size: 18, color: AppColors.textMuted),
+                      label: const Text(
+                        'Ziņot par kļūdu vai labojumu',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textMuted,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 40),
                 ],

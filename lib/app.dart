@@ -15,6 +15,7 @@ import 'features/geo/repositories/geo_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/repositories/auth_repository.dart';
+import 'features/feedback/repositories/feedback_repository.dart';
 import 'features/following/bloc/following_bloc.dart';
 import 'features/following/repositories/following_repository.dart';
 import 'features/places/bloc/places_bloc.dart';
@@ -35,6 +36,7 @@ class PiedzivoApp extends StatefulWidget {
   final AuthBloc? authBloc;
   final FollowingRepository? followingRepository;
   final FollowingBloc? followingBloc;
+  final FeedbackRepository? feedbackRepository;
   final GoRouter? router;
   final bool startWithRouter;
 
@@ -53,6 +55,7 @@ class PiedzivoApp extends StatefulWidget {
     this.authBloc,
     this.followingRepository,
     this.followingBloc,
+    this.feedbackRepository,
     this.router,
     this.startWithRouter = false,
   });
@@ -75,6 +78,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
   late final AuthBloc _authBloc;
   late final FollowingRepository _followingRepo;
   late final FollowingBloc _followingBloc;
+  late final FeedbackRepository _feedbackRepo;
   late final GoRouter _router;
 
   bool _isInitialized = false;
@@ -99,6 +103,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
     _authBloc = widget.authBloc ?? (AuthBloc(authRepository: _authRepo)..add(const AuthCheckRequested()));
     _followingRepo = widget.followingRepository ?? FollowingRepository(apiClient: _apiClient);
     _followingBloc = widget.followingBloc ?? FollowingBloc(repository: _followingRepo);
+    _feedbackRepo = widget.feedbackRepository ?? FeedbackRepository(apiClient: _apiClient);
     _router = widget.router ?? appRouter;
     _isInitialized = widget.startWithRouter;
   }
@@ -143,6 +148,7 @@ class _PiedzivoAppState extends State<PiedzivoApp> {
         RepositoryProvider.value(value: _placesRepo),
         RepositoryProvider.value(value: _authRepo),
         RepositoryProvider.value(value: _followingRepo),
+        RepositoryProvider.value(value: _feedbackRepo),
       ],
       child: MultiBlocProvider(
         providers: [

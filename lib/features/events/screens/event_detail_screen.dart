@@ -7,6 +7,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/widgets/auth_bottom_sheet.dart';
+import '../../feedback/models/feedback_submission.dart';
+import '../../feedback/widgets/feedback_bottom_sheet.dart';
 import '../models/event_detail.dart';
 import '../repositories/events_repository.dart';
 import '../utils/event_date_formatter.dart';
@@ -602,6 +604,29 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     ),
                   ),
                 ],
+
+                const SizedBox(height: 32),
+                Center(
+                  child: TextButton.icon(
+                    key: const Key('event_feedback_button'),
+                    onPressed: () => showFeedbackBottomSheet(
+                      context,
+                      contextType: FeedbackContextType.event,
+                      contextId: event.id,
+                      contextTitle: event.title,
+                    ),
+                    icon: const Icon(Icons.outlined_flag_rounded, size: 18, color: AppColors.textMuted),
+                    label: const Text(
+                      'Ziņot par kļūdu vai labojumu',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textMuted,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
