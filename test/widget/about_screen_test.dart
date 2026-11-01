@@ -107,6 +107,53 @@ void main() {
       expect(find.text('v2.0.0'), findsOneWidget);
       expect(find.text('Atjaunināt'), findsOneWidget);
     });
+
+    testWidgets('handles 0.0.x app version correctly when server returns placeholder 1.0.0', (
+      WidgetTester tester,
+    ) async {
+      final alphaPackageInfo = PackageInfo(
+        appName: 'Piedzīvo.lv',
+        packageName: 'lv.piedzivo.app',
+        version: '0.0.4',
+        buildNumber: '11',
+      );
+
+      final serverConfigWithPlaceholder = AppConfig(
+        minSupportedVersion: '1.0.0',
+        latestVersion: '1.0.0',
+        forceUpdate: false,
+        termsVersion: '1.0',
+        termsUrl: 'https://piedzivo.lv/noteikumi',
+        privacyUrl: 'https://piedzivo.lv/privatums',
+        checksums: {},
+        changelog: [
+          ChangelogItem(
+            version: '1.0.0',
+            date: '2026-11-01',
+            title: 'Piedzīvo.lv pirmā versija!',
+            items: ['Pasākumu un vietu pārlūkošana.'],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AboutScreen(
+            packageInfo: alphaPackageInfo,
+            initialConfig: serverConfigWithPlaceholder,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Instalētā versija'), findsOneWidget);
+      expect(find.text('v0.0.4 (11)'), findsOneWidget);
+      expect(find.text('Jaunākā ✓'), findsOneWidget);
+      expect(find.text('Pieejams atjauninājums'), findsNothing);
+      expect(find.text('Jaunākā servera versija'), findsNothing);
+      expect(find.text('v0.0.4'), findsOneWidget);
+      expect(find.text('v1.0.0'), findsNothing);
+    });
   });
 }
 

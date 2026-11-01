@@ -108,12 +108,46 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
+  static int compareSemVer(String v1, String v2) {
+    final p1 = v1.replaceAll(RegExp(r'[^0-9.]'), '').split('.').map((s) => int.tryParse(s) ?? 0).toList();
+    final p2 = v2.replaceAll(RegExp(r'[^0-9.]'), '').split('.').map((s) => int.tryParse(s) ?? 0).toList();
+    while (p1.length < 3) {
+      p1.add(0);
+    }
+    while (p2.length < 3) {
+      p2.add(0);
+    }
+    for (int i = 0; i < 3; i++) {
+      if (p1[i] != p2[i]) return p1[i].compareTo(p2[i]);
+    }
+    return 0;
+  }
+
+  bool _checkIsUpToDate(String currentVersion, String? serverVersion) {
+    if (serverVersion == null || serverVersion.trim().isEmpty) return true;
+    final currentMajor = int.tryParse(currentVersion.replaceAll(RegExp(r'[^0-9.]'), '').split('.').first) ?? 0;
+    final serverMajor = int.tryParse(serverVersion.replaceAll(RegExp(r'[^0-9.]'), '').split('.').first) ?? 0;
+
+    // Serveris šobrīd satur vēsturisko vietturi 1.0.0, lai gan reālās relīzes ir 0.0.x un 1.0.0 vēl nav bijis.
+    if (currentMajor == 0 && serverMajor >= 1) {
+      return true;
+    }
+    return compareSemVer(currentVersion, serverVersion) >= 0;
+  }
+
+  String _formatChangelogVersion(String version) {
+    final currentMajor = int.tryParse(_packageInfo.version.replaceAll(RegExp(r'[^0-9.]'), '').split('.').first) ?? 0;
+    final itemMajor = int.tryParse(version.replaceAll(RegExp(r'[^0-9.]'), '').split('.').first) ?? 0;
+    if (currentMajor == 0 && itemMajor >= 1) {
+      return _packageInfo.version;
+    }
+    return version;
+  }
+
   @override
   Widget build(BuildContext context) {
     final latestServerVersion = _config?.latestVersion;
-    final isUpToDate = latestServerVersion == null ||
-        _packageInfo.version == latestServerVersion ||
-        _packageInfo.version.compareTo(latestServerVersion) >= 0;
+    final isUpToDate = _checkIsUpToDate(_packageInfo.version, latestServerVersion);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -367,7 +401,7 @@ class _AboutScreenState extends State<AboutScreen> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                'v${change.version}',
+                                'v${_formatChangelogVersion(change.version)}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
