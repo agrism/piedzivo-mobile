@@ -57,8 +57,20 @@ jobs:
       - name: Run Tests
         run: flutter test
 
+      - name: Extract Version
+        shell: bash
+        run: |
+          RAW_TAG="${{ inputs.tag_name || github.ref_name }}"
+          CLEAN_VERSION="${RAW_TAG#v}"
+          if [ -z "$CLEAN_VERSION" ] || [ "$CLEAN_VERSION" = "main" ]; then
+            CLEAN_VERSION="0.0.4"
+          fi
+          echo "BUILD_NAME=$CLEAN_VERSION" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "Building version $CLEAN_VERSION (build ${{ github.run_number }})"
+
       - name: Build Release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
 
       - name: Prepare Android Binary
         run: cp build/app/outputs/flutter-apk/app-release.apk piedzivo-android.apk
@@ -87,8 +99,20 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Extract Version
+        shell: bash
+        run: |
+          RAW_TAG="${{ inputs.tag_name || github.ref_name }}"
+          CLEAN_VERSION="${RAW_TAG#v}"
+          if [ -z "$CLEAN_VERSION" ] || [ "$CLEAN_VERSION" = "main" ]; then
+            CLEAN_VERSION="0.0.4"
+          fi
+          echo "BUILD_NAME=$CLEAN_VERSION" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "Building version $CLEAN_VERSION (build ${{ github.run_number }})"
+
       - name: Build Web Release
-        run: flutter build web --release --base-href /piedzivo-mobile/
+        run: flutter build web --release --base-href /piedzivo-mobile/ --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
 
       - name: Package Web App (.zip)
         run: |
@@ -141,8 +165,21 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Extract Version
+        shell: bash
+        run: |
+          RAW_TAG="${{ inputs.tag_name || github.ref_name }}"
+          CLEAN_VERSION="${RAW_TAG#v}"
+          if [ -z "$CLEAN_VERSION" ] || [ "$CLEAN_VERSION" = "main" ]; then
+            CLEAN_VERSION="0.0.4"
+          fi
+          echo "BUILD_NAME=$CLEAN_VERSION" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "Building version $CLEAN_VERSION (build ${{ github.run_number }})"
+
       - name: Build Windows Release
-        run: flutter build windows --release
+        shell: bash
+        run: flutter build windows --release --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
 
       - name: Package Windows App (.zip)
         shell: pwsh
@@ -185,8 +222,20 @@ jobs:
           pod install --repo-update
           cd ..
 
+      - name: Extract Version
+        shell: bash
+        run: |
+          RAW_TAG="${{ inputs.tag_name || github.ref_name }}"
+          CLEAN_VERSION="${RAW_TAG#v}"
+          if [ -z "$CLEAN_VERSION" ] || [ "$CLEAN_VERSION" = "main" ]; then
+            CLEAN_VERSION="0.0.4"
+          fi
+          echo "BUILD_NAME=$CLEAN_VERSION" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "Building version $CLEAN_VERSION (build ${{ github.run_number }})"
+
       - name: Build macOS Release
-        run: flutter build macos --release -v
+        run: flutter build macos --release -v --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
         env:
           CODE_SIGN_IDENTITY: "-"
           CODE_SIGNING_REQUIRED: "NO"

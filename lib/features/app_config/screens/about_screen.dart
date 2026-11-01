@@ -35,8 +35,8 @@ class _AboutScreenState extends State<AboutScreen> {
         PackageInfo(
           appName: 'Piedzīvo.lv',
           packageName: 'lv.piedzivo.app',
-          version: '1.0.0',
-          buildNumber: '1',
+          version: '0.0.4',
+          buildNumber: '4',
         );
 
     _config = widget.initialConfig;
