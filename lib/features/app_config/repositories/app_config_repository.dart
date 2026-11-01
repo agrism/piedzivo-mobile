@@ -5,11 +5,16 @@ import '../models/app_config.dart';
 class AppConfigRepository {
   final ApiClient apiClient;
   final SharedPreferences? _prefs;
+  AppConfig? _cachedConfig;
 
   AppConfigRepository({
     required this.apiClient,
     SharedPreferences? prefs,
-  }) : _prefs = prefs;
+    AppConfig? initialConfig,
+  })  : _prefs = prefs,
+        _cachedConfig = initialConfig;
+
+  AppConfig? get currentConfig => _cachedConfig;
 
   Future<SharedPreferences> _getPrefs() async {
     return _prefs ?? await SharedPreferences.getInstance();
@@ -18,6 +23,7 @@ class AppConfigRepository {
   Future<AppConfig> getAppConfig() async {
     final response = await apiClient.dio.get('/app-config');
     final config = AppConfig.fromJson(response.data as Map<String, dynamic>);
+    _cachedConfig = config;
 
     await saveChecksums(config.checksums);
     return config;

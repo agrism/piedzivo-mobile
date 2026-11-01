@@ -24,3 +24,4 @@ String? webSafeImageUrl(String? url) {
   // Ārējiem trešo pušu resursiem izmantojam Cloudflare CDN attēlu proxy ar CORS atbalstu
   return 'https://wsrv.nl/?url=${Uri.encodeComponent(url)}';
 }
+

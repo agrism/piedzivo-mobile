@@ -6,6 +6,7 @@ import '../../features/geo/cubit/geo_state.dart';
 import '../../features/geo/widgets/city_selection_bottom_sheet.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
+import 'widgets/profile_menu_bottom_sheet.dart';
 
 class GlobalTopBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSearchTap;
@@ -142,7 +143,7 @@ class GlobalTopBar extends StatelessWidget implements PreferredSizeWidget {
                     key: const Key('global_top_bar_profile_button'),
                     icon: const Icon(Icons.person_outline_rounded, color: AppColors.primaryNavy),
                     tooltip: 'Profils',
-                    onPressed: onProfileTap ?? () {},
+                    onPressed: onProfileTap ?? () => ProfileMenuBottomSheet.show(context),
                   ),
                 ],
               );

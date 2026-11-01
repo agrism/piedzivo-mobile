@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/app_config/screens/about_screen.dart';
 import '../../features/events/screens/events_list_screen.dart';
 import '../../features/events/screens/event_detail_screen.dart';
 import '../../features/places/screens/places_list_screen.dart';
@@ -83,6 +84,11 @@ GoRouter createAppRouter({
         parentNavigatorKey: navKey,
         path: '/search',
         builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: navKey,
+        path: '/about',
+        builder: (context, state) => const AboutScreen(),
       ),
     ],
   );
